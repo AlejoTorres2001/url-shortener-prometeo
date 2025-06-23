@@ -1,98 +1,107 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 URL Shortener Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+![Status](https://img.shields.io/badge/status-🚧%20In%20Development-yellow)  
+![NestJS](https://img.shields.io/badge/framework-NestJS-blue)  
+![MongoDB](https://img.shields.io/badge/database-MongoDB-green)  
+![Redis](https://img.shields.io/badge/cache-Redis-orange)  
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Un **acortador de URLs** ligero y seguro, construido con NestJS, MongoDB y Redis.  
+Implementa índices B-Tree para búsquedas rápidas, caching en Redis para reducir hits a la base de datos, y un algoritmo de SHA-256 determinista (truncado) con mecanismo anti-colisiones.  
+Protegido con un flujo de autenticacion completo usando JWT, CORS y Helmet para mitigar XSS y otras vulnerabilidades.
 
-## Description
+**Pueden encontrar la especificacion OpenApi-compliant y visualizarla usando swagger en este enlace** : [https://url-shortener.towers.solutions/apidoc](https://url-shortener.towers.solutions/apidoc)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Como Funciona?
 
-## Project setup
+- crea un usuario con tu correo electronico y contraseña
+- inicia sesion con tu nuevo usuario, recibirás un token JWT
+- usa el token para autenticarte en las siguientes peticiones
+- acorta una URL usando el endpoint POST `/shortenER`
+- obtén la URL acortada y accede a ella, redirigiendo al usuario a la URL original
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## 📋 Características
 
-```bash
-# development
-$ npm run start
+- 🔗 **Acortamiento determinista**: SHA-256 truncado + control de colisiones  
+- ⚙️ **B-Tree indexes** en MongoDB para búsquedas ultrarrápidas  
+- 🚀 **Caching con Redis** para minimizar latencia y carga en BD  
+- 🔐 **Seguridad**: JWT (auth), CORS configurado y Helmet habilitado  
+- 🐳 **Despliegue usando CI/CD** automatizado con un Pipeline de integracion continua apuntado a un AppService
 
-# watch mode
-$ npm run start:dev
+---
 
-# production mode
-$ npm run start:prod
-```
+## 🏃‍♂️ Puesta en marcha (Local)
 
-## Run tests
+Sigue estos pasos para levantar el proyecto en tu máquina local usando Docker Compose.
+
+### 1️⃣ Clona el repositorio
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/AlejoTorres2001/url-shortener-prometeo.git
+cd url-shortener
 ```
 
-## Deployment
+## 2️⃣ Crea el Archivo de configuración
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Copia el ejemplo y rellena las variables según tu entorno
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+```bash
+# 🔑 JWT & Seguridad
+JWT_ACCESS_TOKEN_SECRET="tu_secreto_de_acceso"
+JWT_REFRESH_TOKEN_SECRET="tu_secreto_de_refresh"
+JWT_ACCESS_TOKEN_EXPIRATION=3600       # en segundos
+JWT_REFRESH_TOKEN_EXPIRATION=86400    # en segundos
 
-## Resources
+# 🌐 CORS
+ALLOWED_DOMAINS=http://localhost:3000,http://127.0.0.1:3000
 
-Check out a few resources that may come in handy when working with NestJS:
+# 🗄️ MongoDB
+DEV_BACKEND_MONGO_DATABASE_URI="mongodb://usuario:pass@localhost:27017/url_shortener_dev"
+PROD_BACKEND_MONGO_DATABASE_URI="mongodb+srv://usuario:pass@cluster.mongodb.net/url_shortener_prod"
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# 🐳 Redis
+DEV_REDIS_HOST=redis
+DEV_REDIS_PORT=6379
+DEV_REDIS_PASSWORD="tu_pass_redis"
 
-## Support
+# 🌍 URLs base
+DEV_SHORTENER_BASE_URL=http://localhost:8000
+PROD_SHORTENER_BASE_URL=https://url-shortener.towers.solutions
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# 🔒 Google Safe Browsing
+GSB_API_KEY = 'api_key'
+GSB_API_URL = 'api_url'
+```
 
-## Stay in touch
+## 3️⃣ Levanta los servicios
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Asegurate de tener el motor de Docker corriendo y ejecuta:
 
-## License
+```bash
+docker-compose up -d
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Si quieres escuchar los los logs de los servicios, puedes ejecutar:
+
+```bash
+docker-compose logs -f api 
+o
+docker-compose logs -f redis
+```
+
+De este manera vas a poner en marcha los siguientes servicios:
+
+- **Api**
+- **Redis**
+
+Para un mecanismo de persistencia de datos, puedes levantar una instancia de MongoDB en tu máquina,aunque es recomendable usar la free-tier de un servicio externo como MongoDB Atlas, ahi podras conseguir una base de datos gratuita y escalable y las credenciales para usarla en el archivo `.env`.
+
+## 4️⃣ Accede a la API
+
+La API estará disponible en `http://localhost:8000`. Puedes probar los endpoints usando Postman o swagger en `http://localhost:8000/apidoc`
