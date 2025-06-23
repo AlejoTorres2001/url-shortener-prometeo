@@ -66,36 +66,6 @@ export class UsersController {
     private readonly usersService: UsersServiceInterface,
   ) {}
 
-  @ApiCreatedResponse(USER_CREATE_CREATEDRESPONSE_DOC)
-  @ApiConflictResponse(USER_CREATE_CONFLICTRESPONSE_DOC)
-  @ApiInternalServerErrorResponse(USER_CREATE_INTERNALERRORRESPONSE_DOC)
-  @Post()
-  async create(
-    @Body() createUserDto: CreateUserDto,
-    @Res() res: Response,
-  ): Promise<Response> {
-    try {
-      const newUser = await this.usersService.create(createUserDto);
-      return res
-        .status(HttpStatus.CREATED)
-        .json(createApiResponse(true, 'User created successfully', newUser));
-    } catch (error) {
-      if (error.code === 11000) {
-        return res
-          .status(HttpStatus.CONFLICT)
-          .json(
-            createApiResponse(
-              false,
-              'Username already exists',
-              null,
-              'CONFLICT',
-            ),
-          );
-      }
-      throw error;
-    }
-  }
-
   @ApiCreatedResponse(USER_FINDALL_CREATEDRESPONSE_DOC)
   @ApiNotFoundResponse(USER_FINDALL_NOTFOUNDRESPONSE_DOC)
   @ApiInternalServerErrorResponse(USER_FINDALL_INTERNALERRORRESPONSE_DOC)
@@ -193,28 +163,5 @@ export class UsersController {
     return response
       .status(HttpStatus.OK)
       .json(createApiResponse(true, 'User deleted successfully', removedUser));
-  }
-
-  @ApiCreatedResponse(USER_CREATEMANY_CREATEDRESPONSE_DOC)
-  @ApiConflictResponse(USER_CREATEMANY_CONFLICTRESPONSE_DOC)
-  @ApiInternalServerErrorResponse(USER_CREATEMANY_INTERNALERRORRESPONSE_DOC)
-  @ApiBody({
-    description: 'Array of users to create',
-    type: [CreateUserDto],
-  })
-  @Post('/many')
-  async createMany(
-    @Body() users: CreateUserDto[],
-    @Res() response: Response,
-  ): Promise<Response> {
-    const createdUsers = await this.usersService.createMany(users);
-    if (createdUsers.length === 0) {
-      throw new NotFoundException(`no User data provided`);
-    }
-    return response
-      .status(HttpStatus.CREATED)
-      .json(
-        createApiResponse(true, 'Users created successfully', createdUsers),
-      );
   }
 }

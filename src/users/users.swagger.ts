@@ -2,53 +2,6 @@ import { getSchemaPath } from '@nestjs/swagger';
 import { ReadUserDto } from './repositories/users.dto';
 import { ApiResponseDto } from 'src/core/dto/api-response.dto';
 
-// USER_CREATE Responses
-export const USER_CREATE_CREATEDRESPONSE_DOC = {
-  schema: {
-    allOf: [
-      { $ref: getSchemaPath(ApiResponseDto) },
-      {
-        properties: {
-          data: { $ref: getSchemaPath(ReadUserDto) },
-        },
-      },
-    ],
-  },
-  description: 'User created successfully',
-};
-
-export const USER_CREATE_CONFLICTRESPONSE_DOC = {
-  schema: {
-    allOf: [
-      { $ref: getSchemaPath(ApiResponseDto) },
-      {
-        properties: {
-          data: { type: 'null' },
-          success: { type: 'boolean', example: false },
-          errorCode: { type: 'string', example: 'CONFLICT' },
-        },
-      },
-    ],
-  },
-  description: 'Username already exists',
-};
-
-export const USER_CREATE_INTERNALERRORRESPONSE_DOC = {
-  schema: {
-    allOf: [
-      { $ref: getSchemaPath(ApiResponseDto) },
-      {
-        properties: {
-          data: { type: 'null' },
-          success: { type: 'boolean', example: false },
-          errorCode: { type: 'string', example: 'INTERNAL_SERVER_ERROR' },
-        },
-      },
-    ],
-  },
-  description: 'Internal server error',
-};
-
 // USER_FIND_ALL Responses
 export const USER_FINDALL_CREATEDRESPONSE_DOC = {
   schema: {
@@ -225,56 +178,6 @@ export const USER_REMOVE_NOTFOUNDRESPONSE_DOC = {
 };
 
 export const USER_REMOVE_INTERNALERRORRESPONSE_DOC = {
-  schema: {
-    allOf: [
-      { $ref: getSchemaPath(ApiResponseDto) },
-      {
-        properties: {
-          data: { type: 'null' },
-          success: { type: 'boolean', example: false },
-          errorCode: { type: 'string', example: 'INTERNAL_SERVER_ERROR' },
-        },
-      },
-    ],
-  },
-  description: 'Internal server error',
-};
-
-// USER_CREATE_MANY Responses
-export const USER_CREATEMANY_CREATEDRESPONSE_DOC = {
-  schema: {
-    allOf: [
-      { $ref: getSchemaPath(ApiResponseDto) },
-      {
-        properties: {
-          data: {
-            type: 'array',
-            items: { $ref: getSchemaPath(ReadUserDto) },
-          },
-        },
-      },
-    ],
-  },
-  description: 'Users created successfully',
-};
-
-export const USER_CREATEMANY_CONFLICTRESPONSE_DOC = {
-  schema: {
-    allOf: [
-      { $ref: getSchemaPath(ApiResponseDto) },
-      {
-        properties: {
-          data: { type: 'null' },
-          success: { type: 'boolean', example: false },
-          errorCode: { type: 'string', example: 'CONFLICT' },
-        },
-      },
-    ],
-  },
-  description: 'One or more usernames already exist',
-};
-
-export const USER_CREATEMANY_INTERNALERRORRESPONSE_DOC = {
   schema: {
     allOf: [
       { $ref: getSchemaPath(ApiResponseDto) },
