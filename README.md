@@ -1,26 +1,43 @@
 # 🚀 URL Shortener Service
 
-![Status](https://img.shields.io/badge/status-🚧%20In%20Development-yellow)  
-![NestJS](https://img.shields.io/badge/framework-NestJS-blue)  
-![MongoDB](https://img.shields.io/badge/database-MongoDB-green)  
-![Redis](https://img.shields.io/badge/cache-Redis-orange)  
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
+<p align="left">
+  <img src="https://img.shields.io/badge/status-🚧%20In%20Development-yellow" alt="Status" />
+  <img src="https://img.shields.io/badge/framework-NestJS-blue" alt="NestJS" />
+  <img src="https://img.shields.io/badge/database-MongoDB-green" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/cache-Redis-orange" alt="Redis" />
+  <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="License" />
+</p>
+
 
 Un **acortador de URLs** ligero y seguro, construido con NestJS, MongoDB y Redis.  
 Implementa índices B-Tree para búsquedas rápidas, caching en Redis para reducir hits a la base de datos, y un algoritmo de SHA-256 determinista (truncado) con mecanismo anti-colisiones.  
 Protegido con un flujo de autenticacion completo usando JWT, CORS y Helmet para mitigar XSS y otras vulnerabilidades.
 
+## ⚡ Producción
+![Production](https://img.shields.io/badge/production-🚀%20Live%20on%20Azure-green)
+
+
 **Pueden encontrar la especificacion OpenApi-compliant y visualizarla usando swagger en este enlace** : [https://url-shortener.towers.solutions/apidoc](https://url-shortener.towers.solutions/apidoc)
 
-## Como Funciona?
+**towers.solutions** es mi dominio personal, usando mi proveedor de DNS configure el subdominio `url-shortener` para apuntar a un AppService de Azure donde tengo desplegada la API y desde donde gestiono los certificados TLS.
 
-- crea un usuario con tu correo electronico y contraseña
-- inicia sesion con tu nuevo usuario, recibirás un token JWT
-- usa el token para autenticarte en las siguientes peticiones
-- acorta una URL usando el endpoint POST `/shortenER`
-- obtén la URL acortada y accede a ella, redirigiendo al usuario a la URL original
+### Servicios Dependencias
 
----
+- **MongoDB**: Base de datos NoSQL para almacenar URLs y usuarios. Produccion esta usando una free tier de mongoDB Atlas
+  
+- **Redis**: Caché en memoria para acelerar las búsquedas y reducir la carga en MongoDB. Produccion esta usando una free tier de Redis
+  
+- **Google Safe Browsing**: API para verificar URLs y prevenir redirecciones a sitios maliciosos. Configurable  desde la consola de proyecto de Google Cloud, free tier.
+
+## 📖 Como Funciona
+
+- Crea un usuario con tu correo electronico y contraseña
+- Inicia sesion con tu nuevo usuario, recibirás un token JWT
+- Usa el token para autenticarte en las siguientes peticiones
+- Acorta una URL usando el endpoint POST `/shortener`
+- Obtén la URL acortada y accede a ella, redirigiendo al usuario a la URL original
+
+Todo esto puedes hacerlo desde la interfaz de swagger o usando cualquier cliente HTTP como Postman, Insomnia o curl.
 
 ## 📋 Características
 
@@ -59,7 +76,7 @@ JWT_ACCESS_TOKEN_EXPIRATION=3600       # en segundos
 JWT_REFRESH_TOKEN_EXPIRATION=86400    # en segundos
 
 # 🌐 CORS
-ALLOWED_DOMAINS=http://localhost:3000,http://127.0.0.1:3000
+ALLOWED_DOMAINS=["http://localhost:3000",...]
 
 # 🗄️ MongoDB
 DEV_BACKEND_MONGO_DATABASE_URI="mongodb://usuario:pass@localhost:27017/url_shortener_dev"
@@ -81,13 +98,13 @@ GSB_API_URL = 'api_url'
 
 ## 3️⃣ Levanta los servicios
 
-Asegurate de tener el motor de Docker corriendo y ejecuta:
+Asegurate de tener el motor de Docker corriendo y ejecuta dentro del directorio del proyecto:
 
 ```bash
 docker-compose up -d
 ```
 
-Si quieres escuchar los los logs de los servicios, puedes ejecutar:
+Si quieres escuchar los logs de los servicios, puedes ejecutar:
 
 ```bash
 docker-compose logs -f api 
@@ -100,34 +117,33 @@ De este manera vas a poner en marcha los siguientes servicios:
 - **Api**
 - **Redis**
 
-Para un mecanismo de persistencia de datos, puedes levantar una instancia de MongoDB en tu máquina,aunque es recomendable usar la free-tier de un servicio externo como MongoDB Atlas, ahi podras conseguir una base de datos gratuita y escalable y las credenciales para usarla en el archivo `.env`.
+Para un mecanismo de persistencia de datos, puedes levantar una instancia de **MongoDB** en tu máquina,aunque es recomendable usar la free-tier de un servicio externo como **MongoDB Atlas**, ahi podras conseguir una base de datos gratuita y escalable y las credenciales para usarla en el archivo `.env`.
 
 ## 4️⃣ Accede a la API
 
-La API estará disponible en `http://localhost:8000`. Puedes probar los endpoints usando Postman o swagger en `http://localhost:8000/apidoc`
-
+La API estará disponible en `http://localhost:8000`. Puedes probar los endpoints desde la interfaz de swagger `http://localhost:8000/apidoc`
 
 ## 🛠️ Decisiones sobre tecnologías utilizadas
 
 Para garantizar robustez escalabilidad y buena experiencia de desarrollo, he seleccionado cuidadosamente cada tecnología y herramienta. A continuación se detallan las decisiones y sus justificaciones:
 
-### NestJS + TypeScript
+### 🛡️ NestJS + TypeScript
 
-- **Arquitectura modular y escalable**: NestJS presenta una arquitectura opinionada pero muy robusta, imponinendo patrones y estandares de software de grado industrial. Está basado en módulos y controladores, lo que facilita la organización del código y la separación de responsabilidades. Generando un marco de trabajo que permite crear abstracciones reutilizables y mantener un código limpio y mantenible.
+- **Arquitectura modular y escalable**: NestJS presenta una arquitectura opinionada pero muy robusta, imponiendo patrones y estandares de software de grado industrial. Está basado en módulos y controladores, lo que facilita la organización del código y la separación de responsabilidades. Generando un marco de trabajo que permite crear abstracciones reutilizables y mantener un código limpio y mantenible.
   
 - **Inyección de dependencias**: Una de las principales razones de su eleccion. Permite gestionar servicios y repositorios de forma limpia y testeable.  
   
 - **TypeScript**: Aporta tipado estático, autocompletado y detección temprana de errores en tiempo de compilación, mejorando la mantenibilidad y la experiecia de desarrollo.
 
-### MongoDB
+### 🗄️ MongoDB
 
-- **Modelo de datos flexible**: Su esquema orientado a documentos es ideal para almacenar informacion  sin la rigidez de esquemas relacionales.Es sencillo generar y escalar un cluster en MongoDB Atlas, lo que permite un crecimiento ágil del servicio. Este servicio de base de datos cloud nos permite escalar horizontalmente y manejar grandes volúmenes de datos sin complicaciones mientras que no descuidamos aspectos de networking y seguridad.
+- **Modelo de datos flexible**: Su esquema orientado a documentos es ideal para almacenar informacion sin la rigidez de esquemas relacionales. Es sencillo generar y escalar un cluster en MongoDB Atlas, lo que permite un crecimiento ágil del servicio. Este servicio de base de datos cloud nos permite escalar horizontalmente y manejar grandes volúmenes de datos sin complicaciones mientras que no descuidamos aspectos de networking y seguridad.
   
 - **Índices B-Tree**: Permiten búsquedas rápidas basadas en el hash truncado o la url original, garantizando un rendimiento óptimo incluso con grandes volúmenes de datos. Los índices B-Tree son eficientes para operaciones de búsqueda, inserción y eliminación, lo que mejora la velocidad de acceso a los datos.
   
-- **Escalabilidad horizontal**: MongoDB Replica Sets y Sharding facilitan el crecimiento del servicio conforme aumente el tráfico.
+- **Escalabilidad horizontal**: MongoDB Replica Sets y Sharding facilitan el crecimiento del servicio conforme aumente el tráfic0, redis permite incluir nodos adicionales a medida que la carga lo requiera, Pueden desplegarse varias instancias de la API atras de un balanceador de carga, permitiendo manejar un gran volumen de peticiones concurrentes sin comprometer el rendimiento y sin cambiar de arquitectura.
 
-### Redis como Caché
+### 🪙 Redis como Caché
 
 - **Latencia mínima**: Almacenar en Redis los mappings más consultados reduce significativamente la carga en MongoDB y acelera la redirección. Implementando una cola LRU (Least Recently Used) para mantener en caché las URLs más solicitadas, optimizando el uso de memoria y mejorando la velocidad de respuesta.
 
@@ -135,15 +151,15 @@ Para garantizar robustez escalabilidad y buena experiencia de desarrollo, he sel
   
 - **Alto rendimiento**: Es un pilar fundamental en el desarrollo e arquitecturas distribuidas a gran escala, permitiendo manejar millones de peticiones por segundo con baja latencia.
 
-### Algoritmo de hash determinista (SHA-256 truncado)
+### 🥢 Algoritmo de hash determinista (SHA-256 truncado)
 
 - **Determinismo**: Un mismo `urlOriginal` siempre produce el mismo `shortCode`, evitando duplicados y simplificando validaciones y reduciendo las escrituras en la base de datos
   
 - **Seguridad**: SHA-256 no garantiza resistencia a colisiones accidentales pero se implementa un mecanismo de resolución de colisiones para asegurar unicidad en los `shortCode`.
 
-### Seguridad
+### 🔐 Seguridad
 
-- **JWT**: Se optó por unua estrategia de autenticacion completa usando JSON Web Tokens, proporcionando un mecanismo seguro y escalable para manejar sesiones de usuario. Los tokens se firman y se pueden verificar sin necesidad de almacenar estado en el servidor, lo que mejora la escalabilidad.
+- **JWT**: Se optó por una estrategia de autenticacion completa usando JSON Web Tokens, proporcionando un mecanismo seguro y escalable para manejar sesiones de usuario. Los tokens se firman y se pueden verificar sin necesidad de almacenar estado en el servidor, lo que mejora la escalabilidad.
 
 - **CORS**: Configurado para permitir solo dominios específicos, protegiendo la API de accesos no autorizados desde otros orígenes.
 
@@ -158,3 +174,37 @@ Para garantizar robustez escalabilidad y buena experiencia de desarrollo, he sel
 - **Rate Limiting**: Se implementa un mecanismo de limitación de tasa para prevenir abusos y ataques de denegación de servicio, asegurando que la API pueda manejar múltiples peticiones sin comprometer su rendimiento.
 
 - **Patron Abstract Repository**: Se utiliza para abstraer la lógica de acceso a datos, permitiendo una mayor flexibilidad y facilidad. Muy util para trabajar con distintas funtes de datos sin exponer logica especifica de cada conector dentro de los servicios de negocio.
+
+## 🔄 Resolución del problema de colisiones de SHORT IDs
+
+Para garantizar que cada `shortCode` sea **único**, eficiente y mantenga la **integridad** de los enlaces, he diseñado un proceso de generación y detección de colisiones que combina:
+
+1. **Hash determinista inicial**  
+   - Se usa SHA-256 sobre la `originalUrl` y truncamos el resultado a los primeros 8 caracteres hexadecimales.  
+   - Esto garantiza que la misma URL **siempre** produzca el mismo `shortCode` (sin duplicados innecesarios) y que códigos diferentes tengan una probabilidad prácticamente nula de colisión accidental.
+
+2. **Chequeo de existencia en base de datos**  
+   - Antes de aceptar un `shortCode`, hacemos una llamada rápida a MongoDB (`exists(shortCode)`), apoyándonos en nuestro **índice B-Tree** sobre `shortCode`, para verificar si ya hay otro registro con ese código.
+
+3. **Estrategia de re-hash con contador**  
+   - En el raro caso de colisión (mismo hash truncado para URLs distintas), concatenamos un contador incremental al final de la URL original (`originalUrl + counter`) y volvemos a aplicar SHA-256 + truncado.  
+   - Incrementamos el contador hasta encontrar un `shortCode` libre.  
+   - Esta técnica mantiene los códigos dentro de una longitud manejable y distribuye uniformemente los hashes, minimizando iteraciones.
+
+4. **Balance entre longitud y unicidad**  
+   - Al truncar a 8 caracteres, conseguimos códigos **breves**.  
+   - El mecanismo de re-hash asegura unicidad sin necesidad de alargar el código más allá de un par de iteraciones en la práctica.
+
+5. **Validación y caching**  
+   - Una vez resuelto un nuevo `shortCode`, se persiste en MongoDB y se añade a Redis (cache LRU bidireccional), evitando repetir el proceso de hashing en solicitudes frecuentes.
+
+### 🏆 Aspectos Importantes
+
+- **Originalidad**: combina hashing criptográfico determinista con un “salt” incremental sólo en caso de colisión, manteniendo extremo control sobre la longitud del código.  
+- **Eficacia**: la probabilidad de colisión accidental en 8 caracteres de un hash SHA-256 es prácticamente nula; las colisiones reales se resuelven en pocos ciclos.  
+- **Escalabilidad**: chequeos a la base de datos e índices B-Tree de MongoDB garantizan latencias constantes (milisegundos), incluso a gran escala.  
+- **Integridad**: cada `shortCode` mapea de forma unívoca a una sola URL, evitando sobrescrituras o enlaces equivocados.
+
+## 🫂 Sobre Mi
+
+**Pueden visitar mi blog personal en**: [https://towers.solutions](https://towers.solutions)
