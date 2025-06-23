@@ -7,7 +7,7 @@ import {
   BaseInterfaceRepository,
   ExtendedMongoFindManyOptions,
   ExtendedMongoFindOneOptions,
-} from './base.abstract.repository.interface';
+} from './interfaces/base.abstract.repository.interface';
 
 interface HasId {
   id?: ObjectId;
@@ -22,18 +22,11 @@ export abstract class BaseAbstractRepository<T extends HasId>
     this.repository = repository;
   }
 
-  public save(data: T): Promise<T> {
-    data['_id'] = new ObjectId(data['id']);
-    delete data['id'];
-    return this.repository.save({ ...data, _id: new ObjectId(data['id']) });
+  public async save(data: T): Promise<T> {
+    return await this.repository.save(data);
   }
-
-  public saveMany(data: T[]): Promise<T[]> {
-    data.forEach((item) => {
-      item['_id'] = new ObjectId(item['id']);
-      delete item['id'];
-    });
-    return this.repository.save(data);
+  public async saveMany(data: T[]): Promise<T[]> {
+    return await this.repository.save(data);
   }
 
   public create(data: DeepPartial<T>): T {
