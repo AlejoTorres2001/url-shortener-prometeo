@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   ExceptionFilter,
   Catch,
@@ -8,7 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { Request, Response } from 'express';
 import { createApiResponse } from '../dto/api-response.dto';
 
 @Catch()
@@ -17,8 +15,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<FastifyReply>();
-    const request = ctx.getRequest<FastifyRequest>();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
     //!DEFAULT VALUES
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -58,6 +56,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     //! STANDARD RESPONSE
     const apiResponse = createApiResponse(false, message, null, errorCode);
-    response.status(status).send(apiResponse);
+    response.status(status).json(apiResponse);
   }
 }
