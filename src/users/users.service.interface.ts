@@ -1,4 +1,4 @@
-import { BaseCrudServiceInterface } from 'src/core/service/basecrud.service.interface';
+import { BaseCrudServiceInterface } from 'src/core/service/interfaces/basecrud.service.interface';
 import {
   CreateUserDto,
   ReadUserDto,
