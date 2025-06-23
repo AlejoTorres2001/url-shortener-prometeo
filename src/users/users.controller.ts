@@ -15,8 +15,6 @@ import {
 
 import {
   ApiBearerAuth,
-  ApiBody,
-  ApiConflictResponse,
   ApiCreatedResponse,
   ApiExtraModels,
   ApiInternalServerErrorResponse,
@@ -32,9 +30,6 @@ import {
 } from 'src/users/repositories/users.dto';
 import { UsersServiceInterface } from 'src/users/users.service.interface';
 import {
-  USER_CREATE_CREATEDRESPONSE_DOC,
-  USER_CREATE_CONFLICTRESPONSE_DOC,
-  USER_CREATE_INTERNALERRORRESPONSE_DOC,
   USER_FINDALL_CREATEDRESPONSE_DOC,
   USER_FINDALL_NOTFOUNDRESPONSE_DOC,
   USER_FINDALL_INTERNALERRORRESPONSE_DOC,
@@ -47,9 +42,6 @@ import {
   USER_REMOVE_CREATEDRESPONSE_DOC,
   USER_REMOVE_NOTFOUNDRESPONSE_DOC,
   USER_REMOVE_INTERNALERRORRESPONSE_DOC,
-  USER_CREATEMANY_CREATEDRESPONSE_DOC,
-  USER_CREATEMANY_CONFLICTRESPONSE_DOC,
-  USER_CREATEMANY_INTERNALERRORRESPONSE_DOC,
 } from './users.swagger';
 import { Response } from 'express';
 import {
