@@ -1,4 +1,4 @@
-# 🚀 URL Shortener Service
+# 🚀 URL Shortener
 
 <p align="left">
   <img src="https://img.shields.io/badge/status-🚧%20In%20Development-yellow" alt="Status" />
@@ -135,6 +135,8 @@ Para garantizar robustez escalabilidad y buena experiencia de desarrollo, he sel
   
 - **TypeScript**: Aporta tipado estático, autocompletado y detección temprana de errores en tiempo de compilación, mejorando la mantenibilidad y la experiecia de desarrollo.
 
+- **Patron Abstract Repository**: Se utiliza para abstraer la lógica de acceso a datos, permitiendo una mayor flexibilidad y facilidad. Muy util para trabajar con distintas funtes de datos sin exponer logica especifica de cada conector dentro de los servicios de negocio.
+
 ### 🗄️ MongoDB
 
 - **Modelo de datos flexible**: Su esquema orientado a documentos es ideal para almacenar informacion sin la rigidez de esquemas relacionales. Es sencillo generar y escalar un cluster en MongoDB Atlas, lo que permite un crecimiento ágil del servicio. Este servicio de base de datos cloud nos permite escalar horizontalmente y manejar grandes volúmenes de datos sin complicaciones mientras que no descuidamos aspectos de networking y seguridad.
@@ -173,8 +175,6 @@ Para garantizar robustez escalabilidad y buena experiencia de desarrollo, he sel
 
 - **Rate Limiting**: Se implementa un mecanismo de limitación de tasa para prevenir abusos y ataques de denegación de servicio, asegurando que la API pueda manejar múltiples peticiones sin comprometer su rendimiento.
 
-- **Patron Abstract Repository**: Se utiliza para abstraer la lógica de acceso a datos, permitiendo una mayor flexibilidad y facilidad. Muy util para trabajar con distintas funtes de datos sin exponer logica especifica de cada conector dentro de los servicios de negocio.
-
 ## 🔄 Resolución del problema de colisiones de SHORT IDs
 
 Para garantizar que cada `shortCode` sea **único**, eficiente y mantenga la **integridad** de los enlaces, he diseñado un proceso de generación y detección de colisiones que combina:
@@ -200,9 +200,10 @@ Para garantizar que cada `shortCode` sea **único**, eficiente y mantenga la **i
 
 ### 🏆 Aspectos Importantes
 
-- **Originalidad**: combina hashing criptográfico determinista con un “salt” incremental sólo en caso de colisión, manteniendo extremo control sobre la longitud del código.  
+- **Robusto**: combina hashing criptográfico determinista con un “salt” incremental sólo en caso de colisión, manteniendo extremo control sobre la longitud del código.
+- **Abstracciones Claras**: separa la logica de la capa de datos de cuestiones de negocio, permitiendo una fácil extensibilidad y mantenimiento.  
 - **Eficacia**: la probabilidad de colisión accidental en 8 caracteres de un hash SHA-256 es prácticamente nula; las colisiones reales se resuelven en pocos ciclos.  
-- **Escalabilidad**: chequeos a la base de datos e índices B-Tree de MongoDB garantizan latencias constantes (milisegundos), incluso a gran escala.  
+- **Escalabilidad**: Preparado y pensad para escalar horizontalmente, permitiendo añadir instancias de la API y más nodos de Redis junto con sharding en la base de datos.
 - **Integridad**: cada `shortCode` mapea de forma unívoca a una sola URL, evitando sobrescrituras o enlaces equivocados.
 
 ## 🫂 Sobre Mi
