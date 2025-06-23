@@ -7,9 +7,12 @@ import { AuthModule } from 'src/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from 'src/auth/guards';
 import { ShortenerModule } from 'src/shortener/shortener.module';
-
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 @Module({
-  imports: [EnvironmentModule, UsersModule, AuthModule,ShortenerModule],
+  imports: [ThrottlerModule.forRoot([{
+          ttl: 60000, //! 1 minute
+          limit: 100,
+        }]),EnvironmentModule, UsersModule, AuthModule,ShortenerModule],
   controllers: [ApiController],
   providers: [
     ApiService,
@@ -17,6 +20,10 @@ import { ShortenerModule } from 'src/shortener/shortener.module';
       provide: APP_GUARD,
       useClass: AccessTokenGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    }
   ],
 })
 export class ApiModule {}

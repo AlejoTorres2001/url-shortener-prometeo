@@ -12,28 +12,28 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const environmentService = app.get(EnvironmentService);
   const corsOptions: CorsOptions = {
-  origin:environmentService.get<Array<string>>('ALLOWED_DOMAINS'),
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  maxAge: 3600
-};
+    origin: environmentService.get<Array<string>>('ALLOWED_DOMAINS'),
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 3600,
+  };
   app.enableCors(corsOptions);
   app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: [`'self'`],
-        scriptSrc: [`'self'`, `'unsafe-inline'`],
-        styleSrc: [`'self'`, `'unsafe-inline'`],
-        imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
-        connectSrc: [`'self'`],
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: [`'self'`],
+          scriptSrc: [`'self'`, `'unsafe-inline'`],
+          styleSrc: [`'self'`, `'unsafe-inline'`],
+          imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+          connectSrc: [`'self'`],
+        },
       },
-    },
-    xssFilter: true,
-    noSniff: true,
-  })
-);
+      xssFilter: true,
+      noSniff: true,
+    }),
+  );
   app.use(cookieParser());
   app.use(json({ limit: '20mb' }));
   app.useGlobalPipes(
@@ -46,7 +46,9 @@ async function bootstrap() {
       },
     }),
   );
+
   app.useGlobalFilters(new AllExceptionsFilter());
+
   const config = new DocumentBuilder()
     .setTitle('URL Shortener API')
     .setVersion('1.0')

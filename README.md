@@ -105,3 +105,56 @@ Para un mecanismo de persistencia de datos, puedes levantar una instancia de Mon
 ## 4️⃣ Accede a la API
 
 La API estará disponible en `http://localhost:8000`. Puedes probar los endpoints usando Postman o swagger en `http://localhost:8000/apidoc`
+
+
+## 🛠️ Decisiones sobre tecnologías utilizadas
+
+Para garantizar robustez escalabilidad y buena experiencia de desarrollo, he seleccionado cuidadosamente cada tecnología y herramienta. A continuación se detallan las decisiones y sus justificaciones:
+
+### NestJS + TypeScript
+
+- **Arquitectura modular y escalable**: NestJS presenta una arquitectura opinionada pero muy robusta, imponinendo patrones y estandares de software de grado industrial. Está basado en módulos y controladores, lo que facilita la organización del código y la separación de responsabilidades. Generando un marco de trabajo que permite crear abstracciones reutilizables y mantener un código limpio y mantenible.
+  
+- **Inyección de dependencias**: Una de las principales razones de su eleccion. Permite gestionar servicios y repositorios de forma limpia y testeable.  
+  
+- **TypeScript**: Aporta tipado estático, autocompletado y detección temprana de errores en tiempo de compilación, mejorando la mantenibilidad y la experiecia de desarrollo.
+
+### MongoDB
+
+- **Modelo de datos flexible**: Su esquema orientado a documentos es ideal para almacenar informacion  sin la rigidez de esquemas relacionales.Es sencillo generar y escalar un cluster en MongoDB Atlas, lo que permite un crecimiento ágil del servicio. Este servicio de base de datos cloud nos permite escalar horizontalmente y manejar grandes volúmenes de datos sin complicaciones mientras que no descuidamos aspectos de networking y seguridad.
+  
+- **Índices B-Tree**: Permiten búsquedas rápidas basadas en el hash truncado o la url original, garantizando un rendimiento óptimo incluso con grandes volúmenes de datos. Los índices B-Tree son eficientes para operaciones de búsqueda, inserción y eliminación, lo que mejora la velocidad de acceso a los datos.
+  
+- **Escalabilidad horizontal**: MongoDB Replica Sets y Sharding facilitan el crecimiento del servicio conforme aumente el tráfico.
+
+### Redis como Caché
+
+- **Latencia mínima**: Almacenar en Redis los mappings más consultados reduce significativamente la carga en MongoDB y acelera la redirección. Implementando una cola LRU (Least Recently Used) para mantener en caché las URLs más solicitadas, optimizando el uso de memoria y mejorando la velocidad de respuesta.
+
+- **TTL configurable**: Podemos expirar entradas según la política de uso, manteniendo la caché actualizada y evitando datos obsoletos.Siendo este uno de los aspectos mas complejos de manejar en un sistema de cacheo, Redis nos permite definir un tiempo de vida para cada entrada, lo que ayuda a mantener la cache limpia y eficiente.
+  
+- **Alto rendimiento**: Es un pilar fundamental en el desarrollo e arquitecturas distribuidas a gran escala, permitiendo manejar millones de peticiones por segundo con baja latencia.
+
+### Algoritmo de hash determinista (SHA-256 truncado)
+
+- **Determinismo**: Un mismo `urlOriginal` siempre produce el mismo `shortCode`, evitando duplicados y simplificando validaciones y reduciendo las escrituras en la base de datos
+  
+- **Seguridad**: SHA-256 no garantiza resistencia a colisiones accidentales pero se implementa un mecanismo de resolución de colisiones para asegurar unicidad en los `shortCode`.
+
+### Seguridad
+
+- **JWT**: Se optó por unua estrategia de autenticacion completa usando JSON Web Tokens, proporcionando un mecanismo seguro y escalable para manejar sesiones de usuario. Los tokens se firman y se pueden verificar sin necesidad de almacenar estado en el servidor, lo que mejora la escalabilidad.
+
+- **CORS**: Configurado para permitir solo dominios específicos, protegiendo la API de accesos no autorizados desde otros orígenes.
+
+- **Helmet**: Se utiliza para establecer cabeceras HTTP seguras, mitigando vulnerabilidades comunes como XSS, clickjacking y otros ataques basados en cabeceras HTTP.
+
+- **Validación de entradas**: Se implementan validaciones exhaustivas usando ValidationPipelines en los DTOs para prevenir inyecciones y asegurar que los datos recibidos cumplen con los formatos esperados.
+
+- **Google Safe Browsing**: Se integra con la API de Google Safe Browsing para verificar URLs y prevenir redirecciones a sitios maliciosos, mejorando la seguridad del servicio.
+
+- **Manejo de errores**: Se implementa un manejo de errores centralizado para capturar y registrar excepciones, proporcionando respuestas claras y evitando fugas de información sensible.
+
+- **Rate Limiting**: Se implementa un mecanismo de limitación de tasa para prevenir abusos y ataques de denegación de servicio, asegurando que la API pueda manejar múltiples peticiones sin comprometer su rendimiento.
+
+- **Patron Abstract Repository**: Se utiliza para abstraer la lógica de acceso a datos, permitiendo una mayor flexibilidad y facilidad. Muy util para trabajar con distintas funtes de datos sin exponer logica especifica de cada conector dentro de los servicios de negocio.
