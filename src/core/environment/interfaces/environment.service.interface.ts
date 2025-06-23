@@ -117,4 +117,16 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   JWT_ACCESS_TOKEN_SECRET: string;
+
+  @IsString()
+  @IsNotEmpty()
+  PROD_SHORTENER_BASE_URL: string;
+
+  @IsString()
+  @IsNotEmpty()
+  DEV_SHORTENER_BASE_URL: string;
+
+  @IsString()
+  @IsNotEmpty()
+  REDIS_USERNAME: string;
 }
