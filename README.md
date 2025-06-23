@@ -151,7 +151,7 @@ Para garantizar robustez escalabilidad y buena experiencia de desarrollo, he sel
 
 - **TTL configurable**: Podemos expirar entradas según la política de uso, manteniendo la caché actualizada y evitando datos obsoletos.Siendo este uno de los aspectos mas complejos de manejar en un sistema de cacheo, Redis nos permite definir un tiempo de vida para cada entrada, lo que ayuda a mantener la cache limpia y eficiente.
   
-- **Alto rendimiento**: Es un pilar fundamental en el desarrollo e arquitecturas distribuidas a gran escala, permitiendo manejar millones de peticiones por segundo con baja latencia.
+- **Alto rendimiento**: Es un pilar fundamental en el desarrollo de arquitecturas distribuidas a gran escala, permitiendo manejar millones de peticiones por segundo con baja latencia.
 
 ### 🥢 Algoritmo de hash determinista (SHA-256 truncado)
 
