@@ -23,7 +23,7 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new AllExceptionsFilter());
   const config = new DocumentBuilder()
-    .setTitle('Scheduler API')
+    .setTitle('URL Shortener API')
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
