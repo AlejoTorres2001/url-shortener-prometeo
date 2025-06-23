@@ -147,54 +147,6 @@ export const SHORTENER_CREATE_INTERNALERRORRESPONSE_DOC = {
   },
   description: 'Internal server error',
 };
-
-// SHORTENER_UPDATE Responses
-export const SHORTENER_UPDATE_CREATEDRESPONSE_DOC = {
-  schema: {
-    allOf: [
-      { $ref: getSchemaPath(ApiResponseDto) },
-      {
-        properties: {
-          data: { $ref: getSchemaPath(ReadShortenerDto) },
-        },
-      },
-    ],
-  },
-  description: 'Shortened URL updated successfully',
-};
-
-export const SHORTENER_UPDATE_NOTFOUNDRESPONSE_DOC = {
-  schema: {
-    allOf: [
-      { $ref: getSchemaPath(ApiResponseDto) },
-      {
-        properties: {
-          data: { type: 'null' },
-          success: { type: 'boolean', example: false },
-          errorCode: { type: 'string', example: 'NOT_FOUND' },
-        },
-      },
-    ],
-  },
-  description: 'Shortened URL not found',
-};
-
-export const SHORTENER_UPDATE_INTERNALERRORRESPONSE_DOC = {
-  schema: {
-    allOf: [
-      { $ref: getSchemaPath(ApiResponseDto) },
-      {
-        properties: {
-          data: { type: 'null' },
-          success: { type: 'boolean', example: false },
-          errorCode: { type: 'string', example: 'INTERNAL_SERVER_ERROR' },
-        },
-      },
-    ],
-  },
-  description: 'Internal server error',
-};
-
 // SHORTENER_REMOVE Responses
 export const SHORTENER_REMOVE_CREATEDRESPONSE_DOC = {
   schema: {

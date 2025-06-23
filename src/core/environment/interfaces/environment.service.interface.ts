@@ -129,4 +129,12 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   REDIS_USERNAME: string;
+
+  @IsString()
+  @IsNotEmpty()
+  GSB_API_KEY: string;
+
+  @IsString()
+  @IsNotEmpty()
+  GSB_API_URL: string;
 }
