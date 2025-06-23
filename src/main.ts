@@ -4,18 +4,13 @@ import { EnvironmentService } from './core/environment/environment.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './core/filters/all-exceptions.filter';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+import cookieParser from 'cookie-parser';
+import { json } from 'express';
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter({
-      bodyLimit: 52428800,
-    }),
-  );
+  const app = await NestFactory.create(AppModule);
   const environmentService = app.get(EnvironmentService);
+  app.use(cookieParser());
+  app.use(json({ limit: '50mb' }));
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
