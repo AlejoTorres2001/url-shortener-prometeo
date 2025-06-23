@@ -1,9 +1,29 @@
-import { BadRequestException, Controller, Get, Inject, Param, Res } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Res,
+} from '@nestjs/common';
 import { ShortenerServiceInterface } from 'src/shortener/interfaces/shortener.service.interface';
 import { EnvironmentService } from 'src/core/environment/environment.service';
 import { Response } from 'express';
 import { Public } from 'src/auth/decorators';
-
+import {
+  ApiBadRequestResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  API_REDIRECT_BADREQUEST_DOC,
+  API_REDIRECT_INTERNALERROR_DOC,
+  API_REDIRECT_NOTFOUND_DOC,
+} from './api.swagger';
+@ApiTags('URL Redirects 🔀')
 @Controller()
 export class ApiController {
   constructor(
@@ -11,6 +31,21 @@ export class ApiController {
     private readonly shortenerService: ShortenerServiceInterface,
     private readonly environmentService: EnvironmentService,
   ) {}
+  @ApiOperation({
+    summary: '🔀 Redirect to original URL',
+    description:
+      'Takes a short code and redirects the user to the original destination URL',
+  })
+  @ApiParam({
+    name: 'shortCode',
+    type: String,
+    required: true,
+    description: 'Short code part of the shortened URL',
+    example: 'abc123',
+  })
+  @ApiBadRequestResponse(API_REDIRECT_BADREQUEST_DOC)
+  @ApiNotFoundResponse(API_REDIRECT_NOTFOUND_DOC)
+  @ApiInternalServerErrorResponse(API_REDIRECT_INTERNALERROR_DOC)
   @Public()
   @Get('/:shortCode')
   async redirect(
@@ -27,10 +62,9 @@ export class ApiController {
     );
     const shortUrl = `${baseUrl.replace(/\/+$/, '')}/${shortCode}`;
 
-    // Obtenemos la entidad con originalUrl
     const dto = await this.shortenerService.resolve(shortUrl);
 
-    // Redirigimos al cliente
+    //!Redirect
     return res.redirect(dto.originalUrl);
   }
 }
