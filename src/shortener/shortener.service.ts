@@ -1,4 +1,10 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { ObjectId } from 'mongodb';
@@ -14,7 +20,7 @@ import {
 } from './repository/shortener.dtos';
 import { ShortenerEntity } from './repository/shortener.entity';
 import { EnvironmentService } from 'src/core/environment/environment.service';
-
+import axios from 'axios';
 @Injectable()
 export class ShortenerService implements ShortenerServiceInterface {
   private readonly ORIG_KEY = 'shorturl:orig:'; // originalUrl → shortCode
@@ -33,12 +39,22 @@ export class ShortenerService implements ShortenerServiceInterface {
   async create(createDto: CreateShortenerDto): Promise<ReadShortenerDto> {
     const { originalUrl, userId } = createDto;
     const origKey = this.ORIG_KEY + originalUrl;
-    const cachedCode = await this.redisService.get(origKey);
     const baseUrl = this.environmentService.get(
       this.environmentService.get<string>('STAGE') === 'DEV'
         ? 'DEV_SHORTENER_BASE_URL'
         : 'PROD_SHORTENER_BASE_URL',
     ) as string;
+
+    //! Only shorten URLs that are safe
+    const safe = await this.isSafe(originalUrl);
+    if (!safe) {
+      throw new BadRequestException(
+        'The URL is unsafe and cannot be shortened.',
+      );
+    }
+
+    //! check in cache first
+    const cachedCode = await this.redisService.get(origKey);
     if (cachedCode) {
       // Update LRU queue
       await this.cachePush(originalUrl, cachedCode);
@@ -52,19 +68,20 @@ export class ShortenerService implements ShortenerServiceInterface {
       return this.mapper.map(entity, ShortenerEntity, ReadShortenerDto);
     }
 
-    // Check DB
+    //! not in cache -> Check DB
     const existing = await this.shortenerRepository.findByCondition(
       {
         where: { originalUrl },
       },
       false,
     );
+    //! add to cache if exists -> considered a hot URL
     if (existing) {
       await this.cachePush(originalUrl, existing.shortCode);
       return this.mapper.map(existing, ShortenerEntity, ReadShortenerDto);
     }
 
-    // Generate deterministic SHA-256 truncated
+    //! deterministic SHA-256 truncated
     let hash = createHash('sha256').update(originalUrl).digest('hex');
     let shortCode = hash.slice(0, 8);
     let counter = 1;
@@ -75,7 +92,7 @@ export class ShortenerService implements ShortenerServiceInterface {
       shortCode = hash.slice(0, 8);
     }
 
-    // Persist
+    //! write to db
     const entity = this.shortenerRepository.create({
       originalUrl,
       shortCode,
@@ -83,6 +100,7 @@ export class ShortenerService implements ShortenerServiceInterface {
       shortUrl: `${baseUrl}/${shortCode}`,
     });
     const saved = await this.shortenerRepository.save(entity);
+    //! update cache with new entry
     await this.redisService.set(origKey, shortCode);
     await this.redisService.set(this.CODE_KEY + shortCode, originalUrl);
     await this.cachePush(originalUrl, shortCode);
@@ -139,9 +157,10 @@ export class ShortenerService implements ShortenerServiceInterface {
     }
 
     const codeKey = this.CODE_KEY + shortCode;
-    // 1) cache lookup por shortCode → originalUrl
+    //!cache lookup shortCode → originalUrl
     const cachedOriginal = await this.redisService.get(codeKey);
     if (cachedOriginal) {
+      //! update LRU queue
       await this.cachePush(cachedOriginal, shortCode);
       const entity = this.shortenerRepository.create({
         originalUrl: cachedOriginal,
@@ -151,7 +170,7 @@ export class ShortenerService implements ShortenerServiceInterface {
       return this.mapper.map(entity, ShortenerEntity, ReadShortenerDto);
     }
 
-    // 2) DB lookup por shortCode
+    //!DB lookup using shortCode
     const found = await this.shortenerRepository.findByCondition(
       { where: { shortCode } },
       false,
@@ -160,7 +179,7 @@ export class ShortenerService implements ShortenerServiceInterface {
       throw new BadRequestException('Short code not found');
     }
 
-    // 3) Rellenar cache bidireccional y LRU
+    //! set bidirectional cache and update LRU queue
     await this.redisService.set(codeKey, found.originalUrl);
     await this.redisService.set(this.ORIG_KEY + found.originalUrl, shortCode);
     await this.cachePush(found.originalUrl, shortCode);
@@ -169,14 +188,15 @@ export class ShortenerService implements ShortenerServiceInterface {
   }
 
   private async cachePush(url: string, code: string) {
+    //! update
     await this.redisService.lpush(this.QUEUE_KEY, url);
     const len = await this.redisService.llen(this.QUEUE_KEY);
     if (len > this.MAX_CACHE) {
+      //! evict the oldest entry
       const evicted = await this.redisService.rpop(this.QUEUE_KEY);
       if (evicted) {
-        // limpiar ambas entradas: orig:evicted y code:…
+        //! clean both directions
         await this.redisService.del(this.ORIG_KEY + evicted);
-        // buscar en cache:
         const code = await this.redisService.get(this.ORIG_KEY + evicted);
         if (code) {
           await this.redisService.del(this.CODE_KEY + code);
@@ -192,6 +212,31 @@ export class ShortenerService implements ShortenerServiceInterface {
     } catch {
       const parts = shortUrl.split('/').filter(Boolean);
       return parts.pop() || '';
+    }
+  }
+
+  private async isSafe(url: string): Promise<boolean> {
+    const body = {
+      client: { clientId: 'url-shortener', clientVersion: '1.0.0' },
+      threatInfo: {
+        threatTypes: ['MALWARE', 'SOCIAL_ENGINEERING', 'UNWANTED_SOFTWARE'],
+        platformTypes: ['ANY_PLATFORM'],
+        threatEntryTypes: ['URL'],
+        threatEntries: [{ url }],
+      },
+    };
+
+    try {
+      const { data } = await axios.post(
+        `${this.environmentService.get<string>('GSB_API_URL')}?key=${this.environmentService.get<string>('GSB_API_KEY')}`,
+        body,
+      );
+      return !data.matches;
+    } catch (err) {
+      throw new HttpException(
+        'Google Safe Browsing API error',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
     }
   }
 }
