@@ -101,4 +101,20 @@ export class EnvironmentVariables {
   @IsInt()
   @Type(() => Number)
   REDIS_DB: number;
+
+  @IsInt()
+  @Type(() => Number)
+  JWT_ACCESS_TOKEN_EXPIRATION: number;
+
+  @IsInt()
+  @Type(() => Number)
+  JWT_REFRESH_TOKEN_EXPIRATION: number;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_REFRESH_TOKEN_SECRET: string;
+
+  @IsString()
+  @IsNotEmpty()
+  JWT_ACCESS_TOKEN_SECRET: string;
 }
