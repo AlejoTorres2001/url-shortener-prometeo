@@ -40,7 +40,7 @@ import { RefreshTokenGuard } from './guards';
 import { EnvironmentService } from 'src/core/environment/environment.service';
 @ApiTags('auth')
 @ApiExtraModels(LoginDTO, SignInOutput, Tokens)
-@Controller('api/auth')
+@Controller('api/v1/auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,

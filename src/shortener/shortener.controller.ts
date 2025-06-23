@@ -60,7 +60,7 @@ import { GetCurrentUser } from 'src/auth/decorators';
   ApiResponseDto,
 )
 @ApiBearerAuth('access_token')
-@Controller('/api/shortener')
+@Controller('/api/v1/shortener')
 export class ShortenerController {
   constructor(
     @Inject('ShortenerServiceInterface')

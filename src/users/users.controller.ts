@@ -50,7 +50,7 @@ import {
 @ApiTags('users')
 @ApiExtraModels(ReadUserDto, CreateUserDto, UpdateUserDto, ApiResponseDto)
 @ApiBearerAuth('access_token')
-@Controller('/api/users')
+@Controller('/api/v1/users')
 export class UsersController {
   constructor(
     @Inject('UsersServiceInterface')
