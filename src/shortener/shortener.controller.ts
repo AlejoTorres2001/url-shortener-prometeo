@@ -39,9 +39,6 @@ import {
   SHORTENER_CREATE_CREATEDRESPONSE_DOC,
   SHORTENER_CREATE_BADREQUESTRESPONSE_DOC,
   SHORTENER_CREATE_INTERNALERRORRESPONSE_DOC,
-  SHORTENER_UPDATE_CREATEDRESPONSE_DOC,
-  SHORTENER_UPDATE_NOTFOUNDRESPONSE_DOC,
-  SHORTENER_UPDATE_INTERNALERRORRESPONSE_DOC,
   SHORTENER_REMOVE_CREATEDRESPONSE_DOC,
   SHORTENER_REMOVE_NOTFOUNDRESPONSE_DOC,
   SHORTENER_REMOVE_INTERNALERRORRESPONSE_DOC,
@@ -127,31 +124,6 @@ export class ShortenerController {
       .status(HttpStatus.CREATED)
       .json(createApiResponse(true, 'URL shortened successfully', created));
   }
-
-  @ApiCreatedResponse(SHORTENER_UPDATE_CREATEDRESPONSE_DOC)
-  @ApiNotFoundResponse(SHORTENER_UPDATE_NOTFOUNDRESPONSE_DOC)
-  @ApiInternalServerErrorResponse(SHORTENER_UPDATE_INTERNALERRORRESPONSE_DOC)
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-    description: 'ID of the shortened URL',
-  })
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() dto: UpdateShortenerDto,
-    @Res() res: Response,
-  ): Promise<Response> {
-    const updated = await this.shortenerService.update(id, dto);
-    if (!updated) {
-      throw new NotFoundException(`Shortened URL with ID ${id} not found.`);
-    }
-    return res
-      .status(HttpStatus.CREATED)
-      .json(createApiResponse(true, 'URL updated successfully', updated));
-  }
-
   @ApiCreatedResponse(SHORTENER_REMOVE_CREATEDRESPONSE_DOC)
   @ApiNotFoundResponse(SHORTENER_REMOVE_NOTFOUNDRESPONSE_DOC)
   @ApiInternalServerErrorResponse(SHORTENER_REMOVE_INTERNALERRORRESPONSE_DOC)
