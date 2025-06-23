@@ -11,7 +11,7 @@ import { RedisModule } from './core/modules/redis.module';
     AutoMapperConfigModule,
     MongoDBModule,
     ApiModule,
-    RedisModule.forRootAsync()
+    RedisModule.forRootAsync(),
   ],
   controllers: [],
   providers: [],
