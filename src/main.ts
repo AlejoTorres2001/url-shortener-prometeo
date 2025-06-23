@@ -6,11 +6,36 @@ import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './core/filters/all-exceptions.filter';
 import cookieParser from 'cookie-parser';
 import { json } from 'express';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const environmentService = app.get(EnvironmentService);
+  const corsOptions: CorsOptions = {
+  origin:environmentService.get<Array<string>>('ALLOWED_DOMAINS'),
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 3600
+};
+  app.enableCors(corsOptions);
+  app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: [`'self'`],
+        scriptSrc: [`'self'`, `'unsafe-inline'`],
+        styleSrc: [`'self'`, `'unsafe-inline'`],
+        imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+        connectSrc: [`'self'`],
+      },
+    },
+    xssFilter: true,
+    noSniff: true,
+  })
+);
   app.use(cookieParser());
-  app.use(json({ limit: '50mb' }));
+  app.use(json({ limit: '20mb' }));
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
