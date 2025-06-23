@@ -18,6 +18,8 @@ import {
   ApiConflictResponse,
   ApiInternalServerErrorResponse,
   ApiExtraModels,
+  ApiOperation,
+  ApiBody,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -38,7 +40,7 @@ import { GetCurrentUser, Public } from './decorators';
 import { createApiResponse } from 'src/core/dto/api-response.dto';
 import { RefreshTokenGuard } from './guards';
 import { EnvironmentService } from 'src/core/environment/environment.service';
-@ApiTags('auth')
+@ApiTags('Authentication 🔐')
 @ApiExtraModels(LoginDTO, SignInOutput, Tokens)
 @Controller('api/v1/auth')
 export class AuthController {
@@ -46,6 +48,15 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly environmentService: EnvironmentService,
   ) {}
+  @ApiOperation({
+    summary: 'Register new user',
+    description: 'Creates a new user account with the provided credentials',
+  })
+  @ApiBody({
+    type: CreateUserDto,
+    description: 'User registration information',
+    required: true,
+  })
   @ApiCreatedResponse(AUTH_SIGNUP_SUCCESSRESPONSE_DOC)
   @ApiConflictResponse(AUTH_SIGNUP_CONFLICTRESPONSE_DOC)
   @ApiInternalServerErrorResponse(AUTH_SIGNUP_INTERNALERRORRESPONSE_DOC)
@@ -64,7 +75,15 @@ export class AuthController {
       throw new InternalServerErrorException(error);
     }
   }
-
+  @ApiOperation({
+    summary: 'Login user',
+    description: 'Authenticates an user and returns access and refresh tokens',
+  })
+  @ApiBody({
+    type: LoginDTO,
+    description: 'User login credentials',
+    required: true,
+  })
   @ApiOkResponse(AUTH_SIGNIN_SUCCESSRESPONSE_DOC)
   @ApiInternalServerErrorResponse(AUTH_SIGNIN_INTERNALERRORRESPONSE_DOC)
   @Public()
@@ -91,7 +110,10 @@ export class AuthController {
       .status(HttpStatus.OK)
       .json(createApiResponse(true, 'Successfully signed in', responseData));
   }
-
+  @ApiOperation({
+    summary: 'Logout user',
+    description: 'Invalidates current session and clears authentication tokens',
+  })
   @ApiOkResponse(AUTH_LOGOUT_SUCCESSRESPONSE_DOC)
   @ApiInternalServerErrorResponse(AUTH_LOGOUT_INTERNALERRORRESPONSE_DOC)
   @ApiBearerAuth('access_token')
@@ -112,6 +134,11 @@ export class AuthController {
       .status(HttpStatus.OK)
       .json(createApiResponse(true, 'Logged out successfully'));
   }
+  @ApiOperation({
+    summary: 'Refresh tokens',
+    description:
+      'Issues new access and refresh tokens using a valid refresh token',
+  })
   @ApiOkResponse(AUTH_REFRESH_TOKENS_SUCCESSRESPONSE_DOC)
   @ApiInternalServerErrorResponse(AUTH_REFRESH_TOKENS_INTERNALERRORRESPONSE_DOC)
   @ApiHeaders([
