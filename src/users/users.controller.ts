@@ -18,6 +18,7 @@ import {
   ApiExtraModels,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
@@ -47,7 +48,7 @@ import {
   ApiResponseDto,
   createApiResponse,
 } from 'src/core/dto/api-response.dto';
-@ApiTags('users')
+@ApiTags('Users 👥')
 @ApiExtraModels(ReadUserDto, CreateUserDto, UpdateUserDto, ApiResponseDto)
 @ApiBearerAuth('access_token')
 @Controller('/api/v1/users')
@@ -56,7 +57,11 @@ export class UsersController {
     @Inject('UsersServiceInterface')
     private readonly usersService: UsersServiceInterface,
   ) {}
-
+  @ApiOperation({
+    summary: 'Get all users',
+    description:
+      'Retrieves a paginated list of users with optional filtering by username',
+  })
   @ApiCreatedResponse(USER_FINDALL_CREATEDRESPONSE_DOC)
   @ApiNotFoundResponse(USER_FINDALL_NOTFOUNDRESPONSE_DOC)
   @ApiInternalServerErrorResponse(USER_FINDALL_INTERNALERRORRESPONSE_DOC)
@@ -77,7 +82,10 @@ export class UsersController {
         createApiResponse(true, 'Users retrieved successfully', foundUsers),
       );
   }
-
+  @ApiOperation({
+    summary: 'Get user by ID',
+    description: 'Retrieves detailed information about a specific user',
+  })
   @ApiCreatedResponse(USER_FINDONE_CREATEDRESPONSE_DOC)
   @ApiNotFoundResponse(USER_FINDONE_NOTFOUNDRESPONSE_DOC)
   @ApiInternalServerErrorResponse(USER_FINDONE_INTERNALERRORRESPONSE_DOC)
@@ -86,14 +94,8 @@ export class UsersController {
     name: 'id',
     type: String,
     required: true,
-    description: 'Id of the User',
-  })
-  @Get(':id')
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-    description: 'Id of the User',
+    description: 'Unique Id of the user',
+    example: '5f9d5a7b8e3a4b0007c1b1a3',
   })
   async findOne(
     @Param('id') id: string,
@@ -107,7 +109,10 @@ export class UsersController {
       .status(HttpStatus.OK)
       .json(createApiResponse(true, 'User retrieved successfully', foundUser));
   }
-
+  @ApiOperation({
+    summary: 'Update user',
+    description: 'Updates user information based on the provided data',
+  })
   @ApiCreatedResponse(USER_UPDATE_CREATEDRESPONSE_DOC)
   @ApiNotFoundResponse(USER_UPDATE_NOTFOUNDRESPONSE_DOC)
   @ApiInternalServerErrorResponse(USER_UPDATE_INTERNALERRORRESPONSE_DOC)
@@ -115,7 +120,8 @@ export class UsersController {
     name: 'id',
     type: String,
     required: true,
-    description: 'Id of the user',
+    description: 'Unique identifier of the user to update',
+    example: '5f9d5a7b8e3a4b0007c1b1a3',
   })
   @Put(':id')
   async update(
@@ -131,7 +137,10 @@ export class UsersController {
       .status(HttpStatus.CREATED)
       .json(createApiResponse(true, 'User updated successfully', updatedUser));
   }
-
+  @ApiOperation({
+    summary: 'Delete user',
+    description: 'Permanently removes a user from the system',
+  })
   @ApiCreatedResponse(USER_REMOVE_CREATEDRESPONSE_DOC)
   @ApiNotFoundResponse(USER_REMOVE_NOTFOUNDRESPONSE_DOC)
   @ApiInternalServerErrorResponse(USER_REMOVE_INTERNALERRORRESPONSE_DOC)
@@ -139,7 +148,8 @@ export class UsersController {
     name: 'id',
     type: String,
     required: true,
-    description: 'Id of the user',
+    description: 'Unique identifier of the user to delete',
+    example: '5f9d5a7b8e3a4b0007c1b1a3',
   })
   @Delete(':id')
   async remove(

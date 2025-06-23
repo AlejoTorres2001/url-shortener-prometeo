@@ -37,28 +37,26 @@ export class RedisModule {
                 : undefined,
               maxRetriesPerRequest: null,
               reconnectOnError: (err) => {
-                // sólo reconectar en ciertos códigos
                 const targetErr = 'READONLY';
                 if (err.message.includes(targetErr)) {
-                  // p.ej. en caso de read-only durante failover
                   return true;
                 }
                 return false;
               },
 
-              // Exponential backoff ligero
+              //!Exponential backoff
               retryStrategy: (times) => {
                 const delay = Math.min(times * 100, 2000);
                 console.log(`Redis retry in ${delay}ms (attempt ${times})`);
                 return delay;
               },
               
-              // Opciones adicionales recomendadas
-              enableOfflineQueue: false,      // encola comandos durante desconexión
-              enableReadyCheck: true,        // espera READY tras reconexión
-              connectTimeout: 10000,        // 10s para conectar
-              family: 4,                    // IPv4
-              keepAlive: 30000,             // TCP keep-alive
+
+              enableOfflineQueue: false,//! queue commands during disconnection
+              enableReadyCheck: true,
+              connectTimeout: 10000,        //!10s to connect
+              family: 4,
+              keepAlive: 30000,
               noDelay: true,
             };
 
